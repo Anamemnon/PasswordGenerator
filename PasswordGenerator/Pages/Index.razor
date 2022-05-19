@@ -1,0 +1,56 @@
+﻿@page "/"
+@using System.Text
+
+<PageTitle>Index</PageTitle>
+
+<h1>Generate your password</h1>
+
+<input type="number" @bind-value="passwordLength" />
+<p role="status">Password: @password</p>
+
+<button class="btn btn-primary" @onclick="GeneratePassword">Generate password</button>
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+    private string password = "";
+    private const int minPasswordLength = 6;
+    private const int maxPasswordLength = 64;
+    private int passwordLength { get; set; } = minPasswordLength;
+
+
+    private void GeneratePassword()
+    {
+        if (this.passwordLength <= 0 || this.passwordLength > maxPasswordLength)
+        {
+            this.passwordLength = minPasswordLength;
+        }
+        StringBuilder tempPassword = new(minPasswordLength);
+
+        for (int i = 0; i < passwordLength; i++)
+        {
+            tempPassword.Append(randomCharacter());
+        }
+
+        password = tempPassword.ToString();
+    }
+
+    private char randomCharacter()
+    {
+        char[] alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+        char[] specical = @"`~!@#$%^&*()_+-={}[];:'|\/".ToCharArray();
+
+        Random r = new Random();
+
+        var collectionChoice = r.NextInt64(0, 2);
+
+        char randomChar = collectionChoice switch {
+            0 => alpha[r.NextInt64(0, alpha.Length - 1)],
+            1 => specical[r.NextInt64(0, specical.Length - 1)],
+            2 => (char) ('0' | r.NextInt64(0, 10)),
+            _ => ' '
+        };
+
+        return randomChar;
+    }
+}
