@@ -5,39 +5,58 @@
 
 <h1>Generate your password</h1>
 
-<input type="number" @bind-value="passwordLength" />
-<p role="status">Password: @password</p>
+<label for="inputPasswordLength">Password Length: </label>
+<input type="number" @bind-value="passwordLength" min="@minPasswordLength" max="@maxPasswordLength" name="inputPasswordLength"></input>
 
-<button class="btn btn-primary" @onclick="GeneratePassword">Generate password</button>
+<label for="inputPasswordsCount">Count of passwords: </label>
+<input type="number" @bind-value="passwordsCount" min="@minPasswordsCount" max="@maxPasswordsCount" name="inputPasswordsCount"></input>
+
+@foreach (var password in passwords)
+{
+    <p role="status">Password: @password</p>
+}
+
+<button class="btn btn-primary" @onclick="GeneratePasswords">Generate password</button>
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
 @code {
-    private string password = "";
     private const int minPasswordLength = 6;
     private const int maxPasswordLength = 64;
+    private const int maxPasswordsCount = 10;
+    private const int minPasswordsCount = 1;
+
+
     private int passwordLength { get; set; } = minPasswordLength;
+    private int passwordsCount { get; set; } = minPasswordsCount;
+    private string[] passwords;
 
-
-    private void GeneratePassword()
+    public Index()
     {
-        if (this.passwordLength <= 0 || this.passwordLength > maxPasswordLength)
-        {
-            this.passwordLength = minPasswordLength;
-        }
-        StringBuilder tempPassword = new(minPasswordLength);
+        this.passwords = new string[minPasswordsCount];
+    }
 
-        for (int i = 0; i < passwordLength; i++)
-        {
-            tempPassword.Append(randomCharacter());
-        }
+    private void GeneratePasswords()
+    {
+        this.passwords = new string[passwordsCount];
 
-        password = tempPassword.ToString();
+        for (int i = 0; i < passwordsCount; i++)
+        {
+            StringBuilder tempPassword = new(passwordLength);
+
+            for (int j = 0; j < passwordLength; j++)
+            {
+                tempPassword.Append(randomCharacter());
+            }
+
+            passwords[i] = tempPassword.ToString();
+        }
+        
     }
 
     private char randomCharacter()
     {
-        char[] alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+        char[] alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".ToCharArray();
         char[] specical = @"`~!@#$%^&*()_+-={}[];:'|\/".ToCharArray();
 
         Random r = new Random();
