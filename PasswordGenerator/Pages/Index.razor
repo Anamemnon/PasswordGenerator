@@ -11,9 +11,16 @@
 <label for="inputPasswordsCount">Count of passwords: </label>
 <input type="number" @bind-value="passwordsCount" min="@minPasswordsCount" max="@maxPasswordsCount" name="inputPasswordsCount"></input>
 
+<label for="checkboxSpecialSymbols">Special symbols </label>
+<input type="checkbox" @bind-value="areSpecialSymbolsAdded" checked name="checkboxSpecialSymbols"></input>
+
+<label for="checkboxNumbers">Numbers </label>
+<input type="checkbox" @bind-value="areNumbersAdded" checked name="checkboxNumbers">Numbers</input>
+<br />
+
 @foreach (var password in passwords)
 {
-    <p role="status">Password: @password</p>
+    <p role="status">Password: <strong>@password</strong></p>
 }
 
 <button class="btn btn-primary" @onclick="GeneratePasswords">Generate password</button>
@@ -29,7 +36,11 @@
 
     private int passwordLength { get; set; } = minPasswordLength;
     private int passwordsCount { get; set; } = minPasswordsCount;
+    private bool areNumbersAdded { get; set; } = true;
+    private bool areSpecialSymbolsAdded { get; set; } = true;
+
     private string[] passwords;
+
 
     public Index()
     {
@@ -42,34 +53,53 @@
 
         for (int i = 0; i < passwordsCount; i++)
         {
-            StringBuilder tempPassword = new(passwordLength);
-
-            for (int j = 0; j < passwordLength; j++)
-            {
-                tempPassword.Append(randomCharacter());
-            }
-
-            passwords[i] = tempPassword.ToString();
+            passwords[i] = GeneratePassword();
         }
-        
+    }
+
+    private string GeneratePassword()
+    {
+        StringBuilder password = new(passwordLength);
+
+        for (int j = 0; j < passwordLength; j++)
+        {
+            password.Append(randomCharacter());
+        }
+
+        return password.ToString();
     }
 
     private char randomCharacter()
     {
         char[] alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".ToCharArray();
         char[] specical = @"`~!@#$%^&*()_+-={}[];:'|\/".ToCharArray();
+        char[] numbers = "0123456789".ToCharArray();
+
+        List<char> resultChars = new(alpha);
+
+        if (areNumbersAdded)
+        {
+            resultChars.AddRange(numbers);
+        }
+
+        if (areSpecialSymbolsAdded)
+        {
+            resultChars.AddRange(specical);
+        }
 
         Random r = new Random();
 
-        var collectionChoice = r.NextInt64(0, 2);
+        var randomIndex = r.NextInt64(0, resultChars.Count);
 
-        char randomChar = collectionChoice switch {
-            0 => alpha[r.NextInt64(0, alpha.Length - 1)],
-            1 => specical[r.NextInt64(0, specical.Length - 1)],
-            2 => (char) ('0' | r.NextInt64(0, 10)),
-            _ => ' '
-        };
+        //var collectionChoice = r.NextInt64(0, 2);
 
-        return randomChar;
+        //char randomChar = collectionChoice switch {
+        //    0 => alpha[r.NextInt64(0, alpha.Length - 1)],
+        //    1 => specical[r.NextInt64(0, specical.Length - 1)],
+        //    2 => (char) ('0' | r.NextInt64(0, 10)),
+        //    _ => ' '
+        //};
+
+        return resultChars[(int)randomIndex];
     }
 }
